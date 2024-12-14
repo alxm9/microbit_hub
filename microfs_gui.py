@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 
 import serial_handler as shandler
+import microfs
 
 
 
@@ -55,6 +56,7 @@ class MainWin(QMainWindow):
         self.left_listbox1 = QListWidget()
         # self.left_listbox1.addItems([port[0] for port in self.connections_list])
         self.left_listbox1.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
+        self.left_listbox1.pressed.connect(self.load_files)
 
         test_button = QPushButton("Search for devices")
         test_button.released.connect(self.search_handler)
@@ -111,48 +113,38 @@ class MainWin(QMainWindow):
 
     def search_handler(self):
         self.left_listbox1.clear()
-        self.connections_list = shandler.check_connections()
+        self.connections_dict = shandler.check_connections()
 
-        if not isinstance(self.connections_list,list):
-            print(self.connections_list)
-            QMessageBox.critical(self, 'Error', str(self.connections_list).split(':',1)[0])
+        if not isinstance(self.connections_dict,dict):
+            print(self.connections_dict)
+            QMessageBox.critical(self, 'Error', str(self.connections_dict).split(':',1)[0])
             return
         
-        for port in self.connections_list:
-            self.change_permissions(port[0])
-            shandler.get_serial(port)
-            self.left_listbox1.addItem(port[0])
+        for port in self.connections_dict:
+            shandler.get_serial(port,self.connections_dict)
+            self.change_permissions(port)
+            self.left_listbox1.addItem(port)
             self.left_listbox1.sortItems()
-
-
-    def contextMenuEvent(self,e):
-        context = QMenu()
-        copy = QAction("copy",self)
-        copy.triggered.connect(self.tester)
-        context.addAction(copy)
-        context.exec(e.globalPos())
 
     def change_permissions(self,port):
         self.textbox.appendPlainText(f"{datetime.now().strftime("%H:%M:%S")}: Executed sudo chmod 666 {port}")
         subprocess.run(["sudo", "chmod", "666", port])
 
-    def show_files(self):
+
+    def load_files(self):
+        port = self.connections_dict[self.left_listbox1.currentIndex().data()][1]
         self.bottom_listbox.clear()
-        data = subprocess.run(["ufs", "ls"], capture_output = True)
+        files = microfs.ls(serial=port)
 
-        if 'Permission denied' in str(data.stdout):
-            self.textbox.appendPlainText("Permission denied, fixing automatically")
-            self.change_permissions()
-            self.show_files()
+        if not isinstance(files,list):
+            self.textbox.appendPlainText(f"Permission denied. {files}")
             return
         
-        self.textbox.appendPlainText(str(data.stdout)[2:-3])
-
-        if 'Could not find' in str(data.stdout):
-            return
+        self.bottom_listbox.addItems(files)
+        # self.textbox.appendPlainText(str(data.stdout)[2:-3])
         
-        for index,file in enumerate(str(data.stdout)[2:-3].split()):
-            self.bottom_listbox.addItems([f"{index}.{file}"])
+        # for index,file in enumerate(str(data.stdout)[2:-3].split()):
+        #     self.bottom_listbox.addItems([f"{index}.{file}"])
 
 class Color(QWidget):
     def __init__(self, color):
