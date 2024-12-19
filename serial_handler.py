@@ -1,7 +1,6 @@
 import serial.tools.list_ports
 from serial import Serial
 import re
-import subprocess
 
 def check_connections():
     devices_connected = {}
@@ -12,8 +11,11 @@ def check_connections():
     return devices_connected
 
 def get_serial(port, dict):
+    print("IN GET_SERIAL: ",port)
     try:
         ser = Serial(port, 115200)
+        print("port ser:",port, ser)
         dict[port].append(ser)
     except serial.serialutil.SerialException as e:
+        print("HERE",e)
         return (e,port)

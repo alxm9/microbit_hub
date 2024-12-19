@@ -11,7 +11,6 @@ import microfs
 
 
 
-
 class MainWin(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -43,7 +42,10 @@ class MainWin(QMainWindow):
         bg.setLayout(self.main_layout)
         self.setCentralWidget(bg)
 
+        print("This tool may ask for your password so the USB port permissions can be changed. (/dev/ttyACM...)")
         subprocess.run(['sudo','-S','ls']) # ask for password
+
+        self.connections_dict = {}
 
     def left_placer(self):
         layout = self.left_layout
@@ -105,14 +107,19 @@ class MainWin(QMainWindow):
         bottom_buttons.setContentsMargins(0,0,0,0)
 
         self.bottom_listbox = QListWidget()
-        self.bottom_listbox.addItems(['placeholder'])
+        self.bottom_listbox.addItems(['Files will show here after selecting a device.'])
         self.bottom_listbox.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
 
         self.bottom_layout.addWidget(self.bottom_listbox,5)
         self.bottom_layout.addLayout(bottom_buttons,1)
 
-    def search_handler(self):
+    def clear_listbox(self):
         self.left_listbox1.clear()
+        del self.connections_dict
+        self.connections_dict = {}
+
+    def search_handler(self):
+        self.clear_listbox()
         self.connections_dict = shandler.check_connections()
 
         if not isinstance(self.connections_dict,dict):
@@ -120,27 +127,38 @@ class MainWin(QMainWindow):
             QMessageBox.critical(self, 'Error', str(self.connections_dict).split(':',1)[0])
             return
         
-        for port in self.connections_dict:
-            shandler.get_serial(port,self.connections_dict)
+        print(self.connections_dict)
+        for port, infolist in self.connections_dict.items():
             self.change_permissions(port)
-            self.left_listbox1.addItem(port)
-            self.left_listbox1.sortItems()
+            shandler.get_serial(port,self.connections_dict)
+            print(port, len(infolist), infolist)
+            if len(infolist) > 1:
+                self.left_listbox1.addItem(port)
+                self.left_listbox1.sortItems()          
 
     def change_permissions(self,port):
-        self.textbox.appendPlainText(f"{datetime.now().strftime("%H:%M:%S")}: Executed sudo chmod 666 {port}")
         subprocess.run(["sudo", "chmod", "666", port])
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Device found, executed 'sudo chmod 666 {port}'")
 
 
     def load_files(self):
-        port = self.connections_dict[self.left_listbox1.currentIndex().data()][1]
+        port = self.left_listbox1.currentIndex().data()
+        print('\nHERE',self.connections_dict)
+        if len(self.connections_dict[port]) <= 1:
+            # self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Device connecting...")
+            # self.search_handler()
+            return
+        serial = self.connections_dict[port][1]
         self.bottom_listbox.clear()
-        files = microfs.ls(serial=port)
+        files = microfs.ls(serial=serial)
 
         if not isinstance(files,list):
             self.textbox.appendPlainText(f"Permission denied. {files}")
             return
         
         self.bottom_listbox.addItems(files)
+
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Selected device at {port}")
         # self.textbox.appendPlainText(str(data.stdout)[2:-3])
         
         # for index,file in enumerate(str(data.stdout)[2:-3].split()):
