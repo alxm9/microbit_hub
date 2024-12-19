@@ -11,7 +11,6 @@ def check_connections():
     return devices_connected
 
 def get_serial(port, dict):
-    print("IN GET_SERIAL: ",port)
     try:
         ser = Serial(port, 115200)
         print("port ser:",port, ser)
