@@ -54,9 +54,7 @@ class MainWin(QMainWindow):
         left_text1.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text1.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        # self.connections_list = shandler.check_connections()
         self.left_listbox1 = QListWidget()
-        # self.left_listbox1.addItems([port[0] for port in self.connections_list])
         self.left_listbox1.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
         self.left_listbox1.pressed.connect(self.load_files)
 
@@ -69,7 +67,7 @@ class MainWin(QMainWindow):
         self.ul_all_button = QPushButton("Upload workspace\nto micro:bits")
         self.ul_all_button.setDisabled(True)
 
-        left_text2 = QLabel("Current micro:bit\nselected")
+        left_text2 = QLabel("Showing files on:")
         left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
@@ -101,10 +99,12 @@ class MainWin(QMainWindow):
 
         self.upload_button = QPushButton('Upload to\nmicro:bit ...')
         self.upload_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.upload_button.pressed.connect(self.file_uploader)
 
         self.delete_button = QPushButton('Delete\nselection')
         self.delete_button.setStyleSheet("background-color: rgb(50,0,0); color: rgb(100,100,100)")
         self.delete_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.delete_button.pressed.connect(self.remove_file)
 
         self.disable_right_buttons(disable_upload=True)
 
@@ -128,6 +128,7 @@ class MainWin(QMainWindow):
             self.download_button.setEnabled(True)
             self.delete_button.setEnabled(True)
             self.delete_button.setStyleSheet("background-color: rgb(177,0,0); color: rgb(0,0,0)")
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Selected file {self.bottom_listbox.currentIndex().data()} on device {self.left_listbox1.currentIndex().data()}")
 
     def clear_listbox(self):
         self.left_listbox1.clear()
@@ -161,16 +162,38 @@ class MainWin(QMainWindow):
         if (self.dl_all_button.isEnabled() == False) and (len(self.connections_dict) != 0):
             self.dl_all_button.setEnabled(True)
             self.ul_all_button.setEnabled(True)
-            self.ul_all_button.setStyleSheet("background-color: rgb(255,255,0); color: rgb(0,0,0)")
+            self.ul_all_button.setStyleSheet("background-color: rgb(255,255,0); color: rgb(0,0,0)")      
 
-        # layout.addWidget(self.dl_all_button)
-        # layout.addWidget(self.ul_all_button)          
-
+    def get_current_selections(self):
+        return (self.connections_dict[self.left_listbox1.currentIndex().data()][1], self.bottom_listbox.currentIndex().data())
+    
     def file_downloader(self):
-        device = self.connections_dict[self.left_listbox1.currentIndex().data()][1]
-        file = self.bottom_listbox.currentIndex().data()
-        print('HERE',device)
-        microfs.get(file,serial=device)
+        device, file = self.get_current_selections()
+        target = str(QFileDialog.getExistingDirectory(self, "Select directory"))
+        if target == "":
+            self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Download operation cancelled.")
+            return
+        target = f'{target}/{file}'
+        microfs.get(file,target=target,serial=device)
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Downloaded file at {target}")
+
+    def file_uploader(self):
+        device, file = self.get_current_selections()
+        target = QFileDialog.getOpenFileName()
+        print(target)
+        if target[0] == "":      
+            self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Upload operation cancelled.")
+            return
+        file = target[0]
+        microfs.put(file, serial=device)       
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} {file.split("/")[-1]} uploaded to {self.left_listbox1.currentIndex().data()}") 
+        self.load_files(mode='refresh')
+
+    def remove_file(self):
+        device, file = self.get_current_selections()
+        microfs.rm(file, device)
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} {file.split("/")[-1]} removed from {self.left_listbox1.currentIndex().data()}") 
+        self.load_files(mode='refresh')
 
     def change_current_microbit(self, selection):
         self.left_text3.setText(selection)
@@ -191,21 +214,24 @@ class MainWin(QMainWindow):
         self.download_button.setDisabled(True)
         self.delete_button.setStyleSheet("")
 
-    def load_files(self):
+    def load_files(self, mode = None):
         self.bottom_listbox.setEnabled(True)
         self.disable_right_buttons()
         self.upload_button.setEnabled(True)
         port = self.left_listbox1.currentIndex().data()
         self.change_current_microbit(str(port))
 
-        # print('\nHERE',self.connections_dict)
         if len(self.connections_dict[port]) <= 1:
-            # self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Device connecting...")
-            # self.search_handler()
             return
         serial = self.connections_dict[port][1]
         self.bottom_listbox.clear()
-        files = microfs.ls(serial=serial)
+
+        try:
+            files = microfs.ls(serial=serial)
+        except:
+            self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Device {self.left_listbox1.currentIndex().data()} no longer connected. Re-checking devices..")
+            self.search_handler()
+            return
 
         if not isinstance(files,list):
             self.textbox.appendPlainText(f"Permission denied. {files}")
@@ -213,11 +239,10 @@ class MainWin(QMainWindow):
         
         self.bottom_listbox.addItems(files)
 
-        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Selected device at {port}")
-        # self.textbox.appendPlainText(str(data.stdout)[2:-3])
+        if mode == 'refresh':
+            return
         
-        # for index,file in enumerate(str(data.stdout)[2:-3].split()):
-        #     self.bottom_listbox.addItems([f"{index}.{file}"])
+        self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} Selected device at {port}")
 
 class Color(QWidget):
     def __init__(self, color):
