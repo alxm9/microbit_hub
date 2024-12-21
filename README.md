@@ -1,5 +1,8 @@
-# microfs_gui
-A simple graphical user interface for [MicroFS](https://github.com/ntoll/microfs), a command line tool to interact with MicroPython on the BBC micro:bit.<br>
-The tool enables the user to see the files currently stored on the micro:bit and download them to the connected device.<br>
+# Microbit Hub
+A tool that facilitates the management of multiple connected micro:bits.
+
+## Workspace
+Download all files from all connected microbits into a workspace which can then be flashed back on its respective microbit with ease.
+
 ## MicroFS
-Created by [Nicholas H.Tollervey](https://github.com/ntoll).
+This tool is based on [MicroFS](https://github.com/ntoll/microfs), created by [Nicholas H.Tollervey](https://github.com/ntoll).
