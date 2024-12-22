@@ -1,7 +1,7 @@
 import csv
 
 # ['serial number', 'assigned id']
-def check_devices(connections_dict):
+def check_devices(connections_dict,):
     for _, datalist in connections_dict.items():
         unique_id = csv_handler(datalist[0])
         datalist.append(unique_id)
