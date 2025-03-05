@@ -10,8 +10,9 @@ def check_connections():
     return devices_connected
 
 def get_serial(port, dict):
-    try:
-        ser = Serial(port, 115200)
-        dict[port].append(ser)
-    except serial.serialutil.SerialException as e:
-        return (e,port)
+    #try:
+    ser = Serial(port, 115200)
+    print("SHANDLER",ser)
+        #dict[port].append(ser)
+    #except serial.serialutil.SerialException as e:
+        #return (e,port)

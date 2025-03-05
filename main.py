@@ -7,7 +7,8 @@ import sys
 from datetime import datetime
 
 import serial_handler as shandler
-import device_checker as dcheck
+import device_checker as dcheck # TO DELETE
+import device
 import microfs
 import workspace
 
@@ -75,7 +76,7 @@ To change the id of a device, double click on its id name in the table.
         #self.con_table.cellChanged.connect(self.renamer)
 
         self.search_button = QPushButton("Search for micro:bits")
-        #self.search_button.released.connect(self.search_handler)
+        self.search_button.released.connect(self.search_handler)
 
         self.dl_ul_layout = QHBoxLayout()
         self.dl_ul_layout.setSpacing(0)
@@ -91,7 +92,7 @@ To change the id of a device, double click on its id name in the table.
 
         left_text2 = QLabel("Showing files on:")
         left_text2.setContentsMargins(0,10,0,0)
-        eft_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
+        left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self.left_text3 = QLabel("None")
@@ -178,32 +179,35 @@ To change the id of a device, double click on its id name in the table.
         self.disable_right_buttons(disable_flash=True)
         self.clear_table()
 
-        self.connections_dict = shandler.check_connections()
-        self.connections_dict = dcheck.check_devices(self.connections_dict)
+        #self.connections_dict = shandler.check_connections()
+        self.connected_devices = device.search() 
+        #self.connections_dict = dcheck.check_devices(self.connections_dict)
 
-        if not isinstance(self.connections_dict,dict):
-            QMessageBox.critical(self, 'Error', str(self.connections_dict).split(':',1)[0])
-            return
-        elif len(self.connections_dict) == 0:
+        if len(self.connected_devices) == 0:
             self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} No connections found.")
             return
         
-        for port, infolist in self.connections_dict.items():
-            self.change_permissions(port)
-            shandler.get_serial(port,self.connections_dict)
-            print(port, len(infolist), infolist)
-            if len(infolist) > 1:
-                self.con_table.setRowCount(self.con_table.rowCount()+1)
-                self.con_table.blockSignals(True) # Prevents rename device from being called upon changing the cell
-                celldata = QTableWidgetItem(port)
-                celldata.setFlags(celldata.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                print(celldata.flags())
-                self.con_table.setItem(self.con_table.rowCount()-1,0,celldata)
-                self.con_table.setItem(self.con_table.rowCount()-1,1,QTableWidgetItem(infolist[1]))
-                self.con_table.blockSignals(False)
-                self.con_table.sortItems(0)
+        #if linux
+        check_dialout()
 
-        if (self.dl_all_button.isEnabled() == False) and (len(self.connections_dict) != 0):
+        #for port, infolist in self.connections_dict.items():
+        for microbit in self.connected_devices
+            self.change_permissions(microbit.port)
+            print("regular",microbit.serial)
+            #if len(infolist) > 1:
+            self.con_table.setRowCount(self.con_table.rowCount()+1)
+            self.con_table.blockSignals(True) # Prevents rename device from being called upon changing the cell
+            celldata = QTableWidgetItem(microbit.port)
+            celldata.setFlags(celldata.flags() & ~Qt.ItemFlag.ItemIsEditable)
+            print(celldata.flags())
+            self.con_table.setItem(self.con_table.rowCount()-1,0,celldata)
+            self.con_table.setItem(self.con_table.rowCount()-1,1,QTableWidgetItem(microbit.id))
+            self.con_table.blockSignals(False)
+            self.con_table.sortItems(0)
+
+       # if (self.dl_all_button.isEnabled() == False) and (len(self.connected_devices) != 0):
+        if len(self.connected_devices) != 0:
+            print("WE HERE")
             self.dl_all_button.setEnabled(True)
             self.ul_all_button.setEnabled(True)
             self.ul_all_button.setStyleSheet("background-color: rgb(255,255,0); color: rgb(0,0,0)")      

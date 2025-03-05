@@ -7,27 +7,28 @@ from serial import Serial
 
 class Microbit():
 
-    def __init__(self, microbit_id, serial_number):
+    def __init__(self, port, serial_number, microbit_id):
+        self.port = port
         self.id = microbit_id
         self.serial_number = serial_number
+        self.serial = Serial(self.port, 115200)
 
     def add_item(self):
         microfs.put()
 
     def remove_item(self):
-        pass
+        microfs.rm()
 
     def rename(self, new_id): # not tested
         self.id = new_id
         seen_devices = grab_seen_devices()
         seen_devices[self.serial_number] = self.id
         export_seen_devices(seen_devices)
-        pass
 
 
 
 
-def checker_connections():
+def search():
 
     connected_microbits = []
 
@@ -44,7 +45,8 @@ def checker_connections():
             else:
                 microbit_id = seen_devices[port.serial_number]
 
-            microbit = Microbit(microbit_id, port.serial_number)
+            microbit = Microbit(port.device, port.serial_number, microbit_id)
+
 
             connected_microbits.append(microbit)
 
@@ -74,9 +76,3 @@ def grab_json_path():
     current_directory = os.getcwd()
     return os.path.join(current_directory, "seen_devices.json")
 
-
-checker_connections()
-
-
-
-# rename_device('ser1', '3')
