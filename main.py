@@ -71,27 +71,27 @@ To change the id of a device, double click on its id name in the table.
         self.con_table.setRowCount(0)
         self.con_table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.con_table.setSelectionMode(QTableView.SelectionMode.SingleSelection)
-        self.con_table.pressed.connect(self.load_files)
-        self.con_table.cellChanged.connect(self.renamer)
+        #self.con_table.pressed.connect(self.load_files)
+        #self.con_table.cellChanged.connect(self.renamer)
 
         self.search_button = QPushButton("Search for micro:bits")
-        self.search_button.released.connect(self.search_handler)
+        #self.search_button.released.connect(self.search_handler)
 
         self.dl_ul_layout = QHBoxLayout()
         self.dl_ul_layout.setSpacing(0)
         self.dl_all_button = QPushButton("Create workspace\n on local device")
         self.dl_all_button.setDisabled(True)
-        self.dl_all_button.pressed.connect(self.create_workspace)
+        #self.dl_all_button.pressed.connect(self.create_workspace)
         self.ul_all_button = QPushButton("Flash workspace\nto micro:bits")
         self.ul_all_button.setDisabled(True)
-        self.ul_all_button.pressed.connect(self.flash_workspace)
+        #self.ul_all_button.pressed.connect(self.flash_workspace)
         self.ul_all_button.setContentsMargins(0,0,0,0)
         self.dl_ul_layout.addWidget(self.dl_all_button)
         self.dl_ul_layout.addWidget(self.ul_all_button)
 
         left_text2 = QLabel("Showing files on:")
         left_text2.setContentsMargins(0,10,0,0)
-        left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
+        eft_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self.left_text3 = QLabel("None")
@@ -122,19 +122,18 @@ To change the id of a device, double click on its id name in the table.
 
         self.download_button = QPushButton('Download\nto local device')
         self.download_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
-        self.download_button.pressed.connect(self.file_downloader)
+        #self.download_button.pressed.connect(self.file_downloader)
 
         self.flash_button = QPushButton('Flash to\nmicro:bit ...')
         self.flash_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
-        self.flash_button.pressed.connect(self.file_flasher)
+        #self.flash_button.pressed.connect(self.file_flasher)
 
         self.delete_button = QPushButton('Delete\nselection')
         self.delete_button.setStyleSheet("background-color: rgb(50,0,0); color: rgb(100,100,100)")
         self.delete_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
-        self.delete_button.pressed.connect(self.remove_file)
+        #self.delete_button.pressed.connect(self.remove_file)
 
-        self.disable_right_buttons(disable_flash=True)
-
+        #self.disable_right_buttons(disable_flash=True)
         bottom_buttons = QVBoxLayout() # relative to the right side
         bottom_buttons.setSpacing(0)
         bottom_buttons.addWidget(self.download_button)
@@ -144,7 +143,7 @@ To change the id of a device, double click on its id name in the table.
 
         self.bottom_listbox = QListWidget()
         self.bottom_listbox.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
-        self.bottom_listbox.pressed.connect(self.select_file)
+        #self.bottom_listbox.pressed.connect(self.select_file)
         self.bottom_listbox.setDisabled(True)
         self.bottom_listbox.resizeEvent = self.botlb_resize
         self.right_text1 = QLabel("Download, flash, or delete\nany file after selecting a micro:bit.", self.bottom_listbox)

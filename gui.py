@@ -10,8 +10,12 @@ GUI layout:
 
                (main_layout)
 
-  (left_layout)              (right_layout)
-----------------------------------------------------------------|
+  (left_layout)                  (right_layout)
+╔══════════════╗ ╔═════════════════════════════════════════════╗
+║              ║ ║                                             ║
+▼              ▼ ▼                                             ▼
+|
+----------------------------------------------------------------- 
 | left_text1    |                                               |
 |---------------|                                               |
 | con_table     |           (output_layout)                     |
@@ -21,11 +25,12 @@ GUI layout:
 |---------------|                                               |
 | search_button |                                               |
 | dl_ul_layout  |-----------------------------------------------|
-| left_text2    |                               |download_button|
-| left_text3    |           (bottom_layout)     |flash_button   |
-|               |                               |delete_button  |
-|               |                               |               |
-----------------------------------------------------------------|
+| left_text2    |           (bottom_layout)      download_button|
+| left_text3    |                                flash_button   |
+|               |            bottom_listbox      delete_button  |
+|               |                                               |
+-----------------------------------------------------------------    
+
 
 """
 
@@ -174,9 +179,9 @@ class Color(QWidget):
         self.setPalette(palette)
 
 
-app = QApplication(sys.argv)
+Qt_app = QApplication(sys.argv)
 
 window = MainWin()
 window.show()
 
-app.exec()
+Qt_app.exec()
