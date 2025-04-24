@@ -34,6 +34,8 @@ GUI layout:
 
 """
 
+
+
 class MainWin(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -168,6 +170,17 @@ class MainWin(QMainWindow):
         self.right_text1.setFixedWidth(self.bottom_listbox.width())
         self.right_text1.setFixedHeight(self.bottom_listbox.height())
 
+    def table_add(self, device):
+        table = self.con_table
+        port, id = QTableWidgetItem( device.port ), QTableWidgetItem( device.id )
+        table.setRowCount( table.rowCount()+1 )
+        table.setItem( table.rowCount()-1, 0, port )
+        table.setItem( table.rowCount()-1, 1, id )
+
+    def table_clear(self):
+        self.con_table.setRowCount(0)
+        self.con_table.clearContents()
+        
 
 class Color(QWidget):
     def __init__(self, color):

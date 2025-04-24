@@ -4,6 +4,8 @@ import serial.tools.list_ports
 import microfs
 from serial import Serial
 
+connected = []
+current_selected = None
 
 class Microbit():
 
@@ -13,11 +15,14 @@ class Microbit():
         self.sn = serial_number # Used as json key
         self.serial = Serial( self.port, 115200 ) # Serial object
 
-    def add_item(self, path):
-        microfs.put( path, serial = self.serial)
-
-    def remove_item(self, filename):
-        microfs.rm( filename, serial = self.serial )
+##    def add_item(self, path):
+##        microfs.put( path, serial = self.serial)
+##
+##    def download_item(self, target, path):
+##        microfs.get( filename, target = None, serial = self.serial )
+##
+##    def remove_item(self, filename):
+##        microfs.rm( filename, serial = self.serial )
 
     def rename(self, new_id):
         self.id = new_id
@@ -27,9 +32,11 @@ class Microbit():
 
 
 
+
+
 def search():
 
-    connected_microbits = []
+    connected.clear()
 
     for port in serial.tools.list_ports.comports():
         if "micro:bit" in port.description:
@@ -45,9 +52,10 @@ def search():
             else:
                 microbit_id = seen_devices[sn]
 
-            connected_microbits.append( Microbit(device, sn, microbit_id) )
+            connected.append( Microbit(device, sn, microbit_id) )
 
-    return connected_microbits
+    print(connected)
+
 
 
 
@@ -77,7 +85,6 @@ def grab_json():
     return os.path.join( current_directory, "seen_devices.json" )
 
 if __name__ == "__main__":
-
-    devices = search()
-    print(devices[0].id)
+    search()
+    print(connected[0].id)
 
