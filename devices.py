@@ -4,7 +4,9 @@ import serial.tools.list_ports
 import microfs
 from serial import Serial
 
-connected = []
+
+connected = {}
+
 current_selected = None
 
 class Microbit():
@@ -14,6 +16,7 @@ class Microbit():
         self.id = microbit_id # Randomly assigned id, can be changed by user
         self.sn = serial_number # Used as json key
         self.serial = Serial( self.port, 115200 ) # Serial object
+        connected[self.id] = self.serial
 
 ##    def add_item(self, path):
 ##        microfs.put( path, serial = self.serial)
@@ -52,10 +55,9 @@ def search():
             else:
                 microbit_id = seen_devices[sn]
 
-            connected.append( Microbit(device, sn, microbit_id) )
-
+            connected[microbit_id] = Microbit(device, sn, microbit_id)
+    
     print(connected)
-
 
 
 
@@ -86,5 +88,5 @@ def grab_json():
 
 if __name__ == "__main__":
     search()
-    print(connected[0].id)
+    print(connected)
 
