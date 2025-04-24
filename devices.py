@@ -76,5 +76,8 @@ def grab_json():
     current_directory = os.getcwd()
     return os.path.join( current_directory, "seen_devices.json" )
 
-devices = search()
-print(devices[0].id)
+if __name__ == "__main__":
+
+    devices = search()
+    print(devices[0].id)
+

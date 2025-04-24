@@ -3,3 +3,4 @@ __pycache__/
 backup/
 devices.csv
 *.swp
+*.swo

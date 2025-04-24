@@ -179,9 +179,12 @@ class Color(QWidget):
         self.setPalette(palette)
 
 
-Qt_app = QApplication(sys.argv)
 
-window = MainWin()
-window.show()
+if __name__ == "__main__":
 
-Qt_app.exec()
+    Qt_app = QApplication(sys.argv)
+
+    window = MainWin()
+    window.show()
+
+    Qt_app.exec()
