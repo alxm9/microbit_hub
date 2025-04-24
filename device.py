@@ -9,22 +9,21 @@ class Microbit():
 
     def __init__(self, port, serial_number, microbit_id):
         self.port = port
-        self.id = microbit_id
-        self.serial_number = serial_number
-        self.serial = Serial(self.port, 115200)
+        self.id = microbit_id # Randomly assigned id, can be changed by user
+        self.sn = serial_number # Used as json key
+        self.serial = Serial( self.port, 115200 ) # Serial object
 
-    def add_item(self):
-        microfs.put()
+    def add_item(self, path):
+        microfs.put( path, serial = self.serial)
 
-    def remove_item(self):
-        microfs.rm()
+    def remove_item(self, filename):
+        microfs.rm( filename, serial = self.serial )
 
-    def rename(self, new_id): # not tested
+    def rename(self, new_id):
         self.id = new_id
         seen_devices = grab_seen_devices()
-        seen_devices[self.serial_number] = self.id
-        export_seen_devices(seen_devices)
-
+        seen_devices[sn] = self.id
+        export_seen_devices( seen_devices )
 
 
 
@@ -37,34 +36,33 @@ def search():
             #load json
             seen_devices = grab_seen_devices()
 
-            print(seen_devices)
-            if port.serial_number not in seen_devices:
-                microbit_id = port.serial_number[16:-16]
-                seen_devices[port.serial_number] = microbit_id
-                export_seen_devices(seen_devices)
+            device, sn = port.device, port.serial_number
+
+            if sn not in seen_devices:
+                microbit_id = sn[16:-16]
+                seen_devices[sn] = microbit_id
+                export_seen_devices( seen_devices )
             else:
-                microbit_id = seen_devices[port.serial_number]
+                microbit_id = seen_devices[sn]
 
-            microbit = Microbit(port.device, port.serial_number, microbit_id)
+            connected_microbits.append( Microbit(device, sn, microbit_id) )
 
-
-            connected_microbits.append(microbit)
-
-    print(connected_microbits)
     return connected_microbits
+
 
 
 def export_seen_devices(seen_devices):
 
-    json_path = grab_json_path()
+    json_path = grab_json()
 
-    with open( json_path, "w") as output:
-        json.dump(seen_devices, output, indent=6) 
+    with open(json_path, "w") as output:
+        json.dump( seen_devices, output, indent=6 ) 
+
 
 
 def grab_seen_devices():
 
-    json_path = grab_json_path()
+    json_path = grab_json()
 
     if not os.path.exists(json_path):
         with open(json_path, "w") as file:
@@ -72,7 +70,11 @@ def grab_seen_devices():
     
     return json.load( open("seen_devices.json") )
 
-def grab_json_path():
-    current_directory = os.getcwd()
-    return os.path.join(current_directory, "seen_devices.json")
 
+
+def grab_json():
+    current_directory = os.getcwd()
+    return os.path.join( current_directory, "seen_devices.json" )
+
+devices = search()
+print(devices[0].id)
