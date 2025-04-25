@@ -29,7 +29,9 @@ class Microbit():
 ##        microfs.rm( filename, serial = self.serial )
 
     def rename(self, new_id):
+        del connected[self.id]
         self.id = new_id
+        connected[self.id] = self
         seen_devices = grab_seen_devices()
         seen_devices[self.sn] = self.id
         export_seen_devices( seen_devices )

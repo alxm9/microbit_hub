@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import QColor, QPalette, QTextCharFormat
 import sys
+from datetime import datetime
 
 
 """
@@ -15,21 +16,21 @@ GUI layout:
 ║              ║ ║                                             ║
 ▼              ▼ ▼                                             ▼
 |
------------------------------------------------------------------ 
-| left_text1    |                                               |
-|---------------|                                               |
-| table         |           (output_layout)                     |
-|               |                                               |
-|               |               logbox                          |
-|               |                                               |
-|---------------|                                               |
-| search_button |                                               |
-| dl_ul_layout  |-----------------------------------------------|
-| left_text2    |           (bottom_layout)      download_button|
-| left_text3    |                                flash_button   |
-|               |            botlist             delete_button  |
-|               |                                               |
------------------------------------------------------------------    
+╔═══════════════╦═══════════════════════════════════════════════╗
+║ left_text1    ║                                               ║
+║---------------║                                               ║
+║ table         ║           (output_layout)                     ║
+║               ║                                               ║
+║               ║               logbox                          ║
+║               ║                                               ║
+║---------------║                                               ║
+║ search_button ║                                               ║
+║ dl_ul_layout  ║-----------------------------------------------║
+║ left_text2    ║           (bottom_layout)      download_button║
+║ device_label  ║                                flash_button   ║
+║               ║            botlist             delete_button  ║
+║               ║                                               ║
+╚═══════════════╩═══════════════════════════════════════════════╝
 
 
 """
@@ -110,8 +111,8 @@ class MainWin(QMainWindow):
         left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        self.left_text3 = QLabel("None")
-        self.left_text3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.device_label = QLabel("None")
+        self.device_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Add everything to layout
         layout = self.left_layout
@@ -120,7 +121,7 @@ class MainWin(QMainWindow):
         layout.addWidget(self.search_button)
         layout.addLayout(self.dl_ul_layout)
         layout.addWidget(left_text2,1)
-        layout.addWidget(self.left_text3,10)
+        layout.addWidget(self.device_label,10)
         layout.setSpacing(0) 
 
 
@@ -200,17 +201,22 @@ class MainWin(QMainWindow):
         self.table.setRowCount(0)
         self.table.clearContents()
 
-    def default_toggles(self):
-        toggle = self.toggle_button
+
+    def default_state(self):
         for button in ["flash","download","delete"]:
-            toggle(button, False)
+            self.toggle_button(button, False)
+        self.change_device_label("None")
+
+
+    def change_device_label(self, device_id):
+        self.device_label.setText(device_id)
 
 
     def init_pressed_signals(self):
 
         self.table.pressed.connect( lambda: (
             self.toggle_button("flash", True),
-            self.botlist.clear()
+            self.botlist.clear(),
             ))
 
         self.botlist.pressed.connect( lambda: (
@@ -220,7 +226,8 @@ class MainWin(QMainWindow):
 
         self.search_button.pressed.connect( lambda: (
             self.table_clear(),
-            self.default_toggles()
+            self.default_state(),
+            self.botlist.clear()
             )) 
 
 
@@ -239,15 +246,10 @@ class MainWin(QMainWindow):
     def select_path(self):
         return QFileDialog.getOpenFileName()
 
-       # if target[0] == "":      
-       #     self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} flash operation cancelled.")
-       #     return
-       # file = target[0]
-       # microfs.put(file, serial=device)       
-       # self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} {file.split("/")[-1]} flashed to {self.con_table.item(self.con_table.currentRow(),0).data(0)}") 
-       # self.load_files(mode='refresh')
 
-
+    def write_log(self, to_write):
+        self.logbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} {to_write}")
+    
 
 class Color(QWidget):
     def __init__(self, color):
