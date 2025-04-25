@@ -27,7 +27,7 @@ GUI layout:
 | dl_ul_layout  |-----------------------------------------------|
 | left_text2    |           (bottom_layout)      download_button|
 | left_text3    |                                flash_button   |
-|               |            bottom_listbox      delete_button  |
+|               |            botlist             delete_button  |
 |               |                                               |
 -----------------------------------------------------------------    
 
@@ -153,22 +153,22 @@ class MainWin(QMainWindow):
         bottom_buttons.addWidget(self.delete_button)
         bottom_buttons.setContentsMargins(0,0,0,0)
 
-        self.bottom_listbox = QListWidget()
-        self.bottom_listbox.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
-        #elf.bottom_listbox.pressed.connect(self.select_file)
-        self.bottom_listbox.setDisabled(True)
-        self.bottom_listbox.resizeEvent = self.botlb_resize
-        self.right_text1 = QLabel("Download, flash, or delete\nany file after selecting a micro:bit.", self.bottom_listbox)
+        self.botlist = QListWidget()
+        self.botlist.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
+        #elf.botlist.pressed.connect(self.select_file)
+        self.botlist.setDisabled(True)
+        self.botlist.resizeEvent = self.botlb_resize
+        self.right_text1 = QLabel("Download, flash, or delete\nany file after selecting a micro:bit.", self.botlist)
         self.right_text1.setStyleSheet('background: rgba(0,0,0,0); font-style: italic; padding:5px')
         self.right_text1.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignBottom)
         self.right_text1.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
 
-        self.bottom_layout.addWidget(self.bottom_listbox,5)
+        self.bottom_layout.addWidget(self.botlist,5)
         self.bottom_layout.addLayout(bottom_buttons,1)
 
     def botlb_resize(self,event):
-        self.right_text1.setFixedWidth(self.bottom_listbox.width())
-        self.right_text1.setFixedHeight(self.bottom_listbox.height())
+        self.right_text1.setFixedWidth(self.botlist.width())
+        self.right_text1.setFixedHeight(self.botlist.height())
 
     def table_add(self, device):
         table = self.con_table
@@ -182,6 +182,17 @@ class MainWin(QMainWindow):
         self.con_table.setRowCount(0)
         self.con_table.clearContents()
 
+    def activate_dl():
+        self.download_button.setEnabled( True )
+
+    def activate_ul():
+        self.upload_button.setEnabled( True )
+
+    def activate_botlist():
+        self.botlist.setEnabled( True )
+
+    def clear_botlist():
+        self.botlist.clear()
 
 
 class Color(QWidget):

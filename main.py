@@ -5,8 +5,14 @@ import gui, devices
 
 Qt_app = gui.QApplication(sys.argv)
 window = gui.MainWin()
-table = window.con_table
 
+
+# Tables, lists
+table = window.con_table
+listbox = window.bottom_listbox
+
+# Buttons
+search = window.search_button
 
 def search_handler():
     window.table_clear()
@@ -20,26 +26,28 @@ def search_handler():
 def select_device():
     device_id = table.item( table.currentRow(), 1 ).data( 0 ) 
     devices.current_device = devices.connected[device_id] 
-    serial = devices.current_device.serial
-    show_files( serial )
+    show_files()
 
 
 # Shows files on current_device device
-def show_files(serial):
-    window.bottom_listbox.clear() 
-    window.bottom_listbox.addItems( microfs.ls( serial = serial ) ) # Shows files on device
-
-
-# Select a file from the current_devicely selected device
-def select_file():
+def show_files():
+    listbox.clear()
+    listbox.setEnabled( True )
     serial = devices.current_device.serial
-    microfs.ls( serial = serial )
+    listbox.addItems( microfs.ls( serial = serial ) ) # Shows files on device
+
+
+# Select a file from the current selected device
+def select_file():
+    window.activate_dl()
+
 
 
 
 # Establish connections between functionalities and gui
-window.search_button.pressed.connect( search_handler ) 
-window.con_table.pressed.connect( select_device )
+search.pressed.connect( search_handler ) 
+table.pressed.connect( select_device )
+listbox.pressed.connect( select_file )
 
 
 window.show()
