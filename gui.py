@@ -189,6 +189,7 @@ class MainWin(QMainWindow):
     def table_add(self, device):
         table = self.table
         port, id = QTableWidgetItem( device.port ), QTableWidgetItem( device.id )
+        port.setFlags( port.flags() & ~Qt.ItemFlag.ItemIsEditable )
 
         table.setRowCount( table.rowCount()+1 )
         table.setItem( table.rowCount()-1, 0, port )
@@ -233,10 +234,6 @@ class MainWin(QMainWindow):
             button[in_button].setEnabled( state )
         except KeyError:
             raise ValueError(f"Unknown button: {in_button}")
-
-
-    def botlist_clear(self):
-        self.botlist.clear()
 
 
     def select_path(self):

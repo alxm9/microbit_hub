@@ -31,7 +31,7 @@ class Microbit():
     def rename(self, new_id):
         self.id = new_id
         seen_devices = grab_seen_devices()
-        seen_devices[sn] = self.id
+        seen_devices[self.sn] = self.id
         export_seen_devices( seen_devices )
 
 

@@ -12,10 +12,12 @@ def search_handler():
     if devices.connected:
         for device_id in devices.connected:
             device = devices.connected[device_id]
+            window.table.blockSignals(True) # Prevents rename device from being called upon changing the cell
             window.table_add( device ) 
+            window.table.blockSignals(False)
 
 
-# Seect device shown in table
+# Select device shown in table
 def select_device():
     table = window.table
     device_id = table.item( table.currentRow(), 1 ).data( 0 ) 
@@ -48,6 +50,12 @@ def flash_file():
     show_files()
 
 
+def change_id(): 
+    new_name = window.table.currentIndex().data()
+    devices.current_device.rename(new_name)
+    
+
+
 # Establish connections between functionalities and gui
 connections = [
         ( window.search_button, search_handler ),
@@ -57,9 +65,11 @@ connections = [
         ( window.delete_button , delete_file )
         ]
 
-
 for gui_element, function in connections:
     gui_element.pressed.connect( function )
+
+# More connections
+window.table.cellChanged.connect( change_id )
 
 
 window.show()
