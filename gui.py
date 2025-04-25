@@ -18,7 +18,7 @@ GUI layout:
 ----------------------------------------------------------------- 
 | left_text1    |                                               |
 |---------------|                                               |
-| table     |           (output_layout)                     |
+| table         |           (output_layout)                     |
 |               |                                               |
 |               |               logbox                          |
 |               |                                               |
@@ -201,8 +201,8 @@ class MainWin(QMainWindow):
 
     def default_toggles(self):
         toggle = self.toggle_button
-        toggle("flash", False)
-        toggle("download", False)
+        for button in ["flash","download","delete"]:
+            toggle(button, False)
 
 
     def init_pressed_signals(self):
@@ -214,6 +214,7 @@ class MainWin(QMainWindow):
 
         self.botlist.pressed.connect( lambda: (
             self.toggle_button("download", True),
+            self.toggle_button("delete", True)
             ))
 
         self.search_button.pressed.connect( lambda: (
@@ -225,7 +226,8 @@ class MainWin(QMainWindow):
     def toggle_button(self, in_button, state):
         button = {
                     "download": self.download_button,
-                    "flash": self.flash_button
+                    "flash": self.flash_button,
+                    "delete": self.delete_button
                 }
         try:
             button[in_button].setEnabled( state )
@@ -235,6 +237,19 @@ class MainWin(QMainWindow):
 
     def botlist_clear(self):
         self.botlist.clear()
+
+
+    def select_path(self):
+        return QFileDialog.getOpenFileName()
+
+       # if target[0] == "":      
+       #     self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} flash operation cancelled.")
+       #     return
+       # file = target[0]
+       # microfs.put(file, serial=device)       
+       # self.textbox.appendPlainText(f"{datetime.now().strftime("[%H:%M:%S]")} {file.split("/")[-1]} flashed to {self.con_table.item(self.con_table.currentRow(),0).data(0)}") 
+       # self.load_files(mode='refresh')
+
 
 
 class Color(QWidget):

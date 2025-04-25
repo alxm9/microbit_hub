@@ -6,8 +6,6 @@ import gui, devices
 Qt_app = gui.QApplication(sys.argv)
 window = gui.MainWin()
 
-# Buttons
-search = window.search_button
 
 def search_handler():
     devices.search()
@@ -16,6 +14,7 @@ def search_handler():
             device = devices.connected[device_id]
             window.table_add( device ) 
 
+
 # Seect device shown in table
 def select_device():
     table = window.table
@@ -23,24 +22,44 @@ def select_device():
     devices.current_device = devices.connected[device_id] 
     show_files()
 
-# Shows files on current_device device
+
+# Shows files on current device
 def show_files():
+    window.botlist.clear()
     serial = devices.current_device.serial
     window.botlist.addItems( microfs.ls( serial = serial ) ) # Shows files on device
 
 
-# Select a file from the current selected device
+# Select a file from the current device
 def select_file():
-    pass
-    #window.toggle_button( "download", True )
+    devices.current_file = window.botlist.currentIndex().data()
 
 
+# Delete current selected file
+def delete_file():
+    microfs.rm( devices.current_file )
+    show_files()
+
+
+# Flash a file to current device
+def flash_file():
+    path = window.select_path()[0]
+    microfs.put( path, serial = devices.current_device.serial )
+    show_files()
 
 
 # Establish connections between functionalities and gui
-search.pressed.connect( search_handler ) 
-window.table.pressed.connect( select_device )
-window.botlist.pressed.connect( select_file )
+connections = [
+        ( window.search_button, search_handler ),
+        ( window.table, select_device ),
+        ( window.botlist, select_file ),
+        ( window.flash_button , flash_file ),
+        ( window.delete_button , delete_file )
+        ]
+
+
+for gui_element, function in connections:
+    gui_element.pressed.connect( function )
 
 
 window.show()
