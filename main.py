@@ -9,7 +9,7 @@ window = gui.MainWin()
 
 # Tables, lists
 table = window.con_table
-listbox = window.bottom_listbox
+botlist = window.botlist
 
 # Buttons
 search = window.search_button
@@ -26,20 +26,20 @@ def search_handler():
 def select_device():
     device_id = table.item( table.currentRow(), 1 ).data( 0 ) 
     devices.current_device = devices.connected[device_id] 
+    window.toggle_button( "flash", True )
     show_files()
-
 
 # Shows files on current_device device
 def show_files():
-    listbox.clear()
-    listbox.setEnabled( True )
+    botlist.clear()
+    botlist.setEnabled( True )
     serial = devices.current_device.serial
-    listbox.addItems( microfs.ls( serial = serial ) ) # Shows files on device
+    botlist.addItems( microfs.ls( serial = serial ) ) # Shows files on device
 
 
 # Select a file from the current selected device
 def select_file():
-    window.activate_dl()
+    window.toggle_button( "download", True )
 
 
 
@@ -47,7 +47,7 @@ def select_file():
 # Establish connections between functionalities and gui
 search.pressed.connect( search_handler ) 
 table.pressed.connect( select_device )
-listbox.pressed.connect( select_file )
+botlist.pressed.connect( select_file )
 
 
 window.show()

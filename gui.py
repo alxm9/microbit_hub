@@ -63,6 +63,8 @@ class MainWin(QMainWindow):
         bg = QWidget()
         bg.setLayout(self.main_layout)
         self.setCentralWidget(bg)
+        self.toggle_button( "download", False )
+        self.toggle_button( "flash", False )
 
     def left_placer(self):
         layout = self.left_layout
@@ -182,18 +184,25 @@ class MainWin(QMainWindow):
         self.con_table.setRowCount(0)
         self.con_table.clearContents()
 
-    def activate_dl():
-        self.download_button.setEnabled( True )
 
-    def activate_ul():
-        self.upload_button.setEnabled( True )
+    def toggle_button(self, in_button, state):
+        button = {
+                    "download": self.download_button,
+                    "flash": self.flash_button
+                }
 
-    def activate_botlist():
+        try:
+            button[in_button].setEnabled( state )
+        except KeyError:
+            raise ValueError(f"Unknown button: {in_button}")
+
+
+    def botlist_activate(self):
         self.botlist.setEnabled( True )
 
-    def clear_botlist():
-        self.botlist.clear()
 
+    def botlist_clear(self):
+        self.botlist.clear()
 
 class Color(QWidget):
     def __init__(self, color):
