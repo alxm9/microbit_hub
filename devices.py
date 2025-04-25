@@ -7,7 +7,8 @@ from serial import Serial
 
 connected = {}
 
-current_selected = None
+current_device = None # current_device selected device 
+current_file = None
 
 class Microbit():
 
@@ -43,6 +44,7 @@ def search():
 
     for port in serial.tools.list_ports.comports():
         if "micro:bit" in port.description:
+
             #load json
             seen_devices = grab_seen_devices()
 

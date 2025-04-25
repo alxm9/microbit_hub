@@ -173,7 +173,6 @@ class MainWin(QMainWindow):
     def table_add(self, device):
         table = self.con_table
         port, id = QTableWidgetItem( device.port ), QTableWidgetItem( device.id )
-        test = QTableWidgetItem( "aa" )
 
         table.setRowCount( table.rowCount()+1 )
         table.setItem( table.rowCount()-1, 0, port )
