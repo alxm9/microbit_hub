@@ -18,7 +18,7 @@ GUI layout:
 ----------------------------------------------------------------- 
 | left_text1    |                                               |
 |---------------|                                               |
-| con_table     |           (output_layout)                     |
+| table     |           (output_layout)                     |
 |               |                                               |
 |               |               logbox                          |
 |               |                                               |
@@ -38,6 +38,7 @@ GUI layout:
 
 class MainWin(QMainWindow):
     def __init__(self):
+
         super().__init__()
         self.setMinimumSize(840,400)
         self.setWindowTitle("Microbit Hub")
@@ -65,27 +66,29 @@ class MainWin(QMainWindow):
         self.setCentralWidget(bg)
         self.toggle_button( "download", False )
         self.toggle_button( "flash", False )
+        self.init_pressed_signals()
+
 
     def left_placer(self):
-        layout = self.left_layout
 
         left_text1 = QLabel("Connected micro:bits")
         left_text1.setContentsMargins(0,3,0,3)
         left_text1.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
         left_text1.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        self.con_table = QTableWidget(0,2,self)
-        self.con_table.verticalHeader().setDefaultSectionSize(2)
-        self.con_table.verticalHeader().hide()
-        self.con_table.setHorizontalHeaderLabels(["Port","Device ID"])
-        self.con_table.horizontalHeader().setStretchLastSection(True)
-        self.con_table.horizontalScrollBar().setDisabled(True)
-        self.con_table.horizontalScrollBar().setHidden(True)
-        self.con_table.setRowCount(0)
-        self.con_table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        self.con_table.setSelectionMode(QTableView.SelectionMode.SingleSelection)
-        #self.con_table.pressed.connect(self.load_files)
-        #self.con_table.cellChanged.connect(self.renamer)
+        self.table = QTableWidget( 0, 2, self )
+        table = self.table
+        table.verticalHeader().setDefaultSectionSize(2)
+        table.verticalHeader().hide()
+        table.setHorizontalHeaderLabels( ["Port","Device ID"] )
+        table.horizontalHeader().setStretchLastSection(True)
+        table.horizontalScrollBar().setDisabled(True)
+        table.horizontalScrollBar().setHidden(True)
+        table.setRowCount(0)
+        table.setSelectionBehavior( QTableView.SelectionBehavior.SelectRows )
+        table.setSelectionMode( QTableView.SelectionMode.SingleSelection )
+        #table.pressed.connect(self.load_files)
+        #table.cellChanged.connect(self.renamer)
 
         self.search_button = QPushButton("Search for micro:bits")
         #self.search_button.released.connect(self.search_handler)
@@ -109,16 +112,20 @@ class MainWin(QMainWindow):
 
         self.left_text3 = QLabel("None")
         self.left_text3.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
+        
+        # Add everything to layout
+        layout = self.left_layout
         layout.addWidget(left_text1,1)
-        layout.addWidget(self.con_table,20)
+        layout.addWidget(self.table,20)
         layout.addWidget(self.search_button)
         layout.addLayout(self.dl_ul_layout)
         layout.addWidget(left_text2,1)
         layout.addWidget(self.left_text3,10)
         layout.setSpacing(0) 
 
+
     def right_placer(self): #log, files
+
         self.logbox = QPlainTextEdit()
         self.textcursor = self.logbox.textCursor()
         self.logbox.setStyleSheet("background-color: rgb(0,0,0); color: rgb(255,255,255)")
@@ -129,21 +136,27 @@ class MainWin(QMainWindow):
         self.red = QTextCharFormat()
         self.green = QTextCharFormat()
         self.white = QTextCharFormat()
-        self.red.setForeground(QColor('red'))
-        self.green.setForeground(QColor(0,255,0))
-        self.white.setForeground(QColor('white'))
+        self.red.setForeground( QColor('red') )
+        self.green.setForeground( QColor(0,255,0) )
+        self.white.setForeground( QColor('white') )
 
         self.download_button = QPushButton('Download\nto local device')
-        self.download_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.download_button.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding, 
+                QSizePolicy.Policy.MinimumExpanding ) # horizontal, vertical
         #self.download_button.pressed.connect(self.file_downloader)
 
         self.flash_button = QPushButton('Flash to\nmicro:bit ...')
-        self.flash_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.flash_button.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding, 
+                QSizePolicy.Policy.MinimumExpanding )
         #self.flash_button.pressed.connect(self.file_flasher)
 
         self.delete_button = QPushButton('Delete\nselection')
         self.delete_button.setStyleSheet("background-color: rgb(50,0,0); color: rgb(100,100,100)")
-        self.delete_button.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
+        self.delete_button.setSizePolicy(
+                QSizePolicy.Policy.MinimumExpanding, 
+                QSizePolicy.Policy.MinimumExpanding )
         #self.delete_button.pressed.connect(self.remove_file)
 
         #self.disable_right_buttons(disable_flash=True)
@@ -158,7 +171,6 @@ class MainWin(QMainWindow):
         self.botlist = QListWidget()
         self.botlist.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
         #elf.botlist.pressed.connect(self.select_file)
-        self.botlist.setDisabled(True)
         self.botlist.resizeEvent = self.botlb_resize
         self.right_text1 = QLabel("Download, flash, or delete\nany file after selecting a micro:bit.", self.botlist)
         self.right_text1.setStyleSheet('background: rgba(0,0,0,0); font-style: italic; padding:5px')
@@ -168,21 +180,46 @@ class MainWin(QMainWindow):
         self.bottom_layout.addWidget(self.botlist,5)
         self.bottom_layout.addLayout(bottom_buttons,1)
 
+
     def botlb_resize(self,event):
         self.right_text1.setFixedWidth(self.botlist.width())
         self.right_text1.setFixedHeight(self.botlist.height())
 
+
     def table_add(self, device):
-        table = self.con_table
+        table = self.table
         port, id = QTableWidgetItem( device.port ), QTableWidgetItem( device.id )
 
         table.setRowCount( table.rowCount()+1 )
         table.setItem( table.rowCount()-1, 0, port )
         table.setItem( table.rowCount()-1, 1, id )
 
+
     def table_clear(self):
-        self.con_table.setRowCount(0)
-        self.con_table.clearContents()
+        self.table.setRowCount(0)
+        self.table.clearContents()
+
+    def default_toggles(self):
+        toggle = self.toggle_button
+        toggle("flash", False)
+        toggle("download", False)
+
+
+    def init_pressed_signals(self):
+
+        self.table.pressed.connect( lambda: (
+            self.toggle_button("flash", True),
+            self.botlist.clear()
+            ))
+
+        self.botlist.pressed.connect( lambda: (
+            self.toggle_button("download", True),
+            ))
+
+        self.search_button.pressed.connect( lambda: (
+            self.table_clear(),
+            self.default_toggles()
+            )) 
 
 
     def toggle_button(self, in_button, state):
@@ -190,19 +227,15 @@ class MainWin(QMainWindow):
                     "download": self.download_button,
                     "flash": self.flash_button
                 }
-
         try:
             button[in_button].setEnabled( state )
         except KeyError:
             raise ValueError(f"Unknown button: {in_button}")
 
 
-    def botlist_activate(self):
-        self.botlist.setEnabled( True )
-
-
     def botlist_clear(self):
         self.botlist.clear()
+
 
 class Color(QWidget):
     def __init__(self, color):
