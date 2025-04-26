@@ -1,7 +1,6 @@
 import os
 import json
 import serial.tools.list_ports
-import microfs
 from serial import Serial
 
 
@@ -17,16 +16,9 @@ class Microbit():
         self.id = microbit_id # Randomly assigned id, can be changed by user
         self.sn = serial_number # Used as json key
         self.serial = Serial( self.port, 115200 ) # Serial object
+        self.filelist = []
         connected[self.id] = self.serial
 
-##    def add_item(self, path):
-##        microfs.put( path, serial = self.serial)
-##
-##    def download_item(self, target, path):
-##        microfs.get( filename, target = None, serial = self.serial )
-##
-##    def remove_item(self, filename):
-##        microfs.rm( filename, serial = self.serial )
 
     def rename(self, new_id):
         del connected[self.id]
@@ -35,8 +27,6 @@ class Microbit():
         seen_devices = grab_seen_devices()
         seen_devices[self.sn] = self.id
         export_seen_devices( seen_devices )
-
-
 
 
 
@@ -66,7 +56,6 @@ def search():
 
 
 def export_seen_devices(seen_devices):
-
     json_path = grab_json()
 
     with open(json_path, "w") as output:
@@ -75,7 +64,6 @@ def export_seen_devices(seen_devices):
 
 
 def grab_seen_devices():
-
     json_path = grab_json()
 
     if not os.path.exists(json_path):
@@ -89,6 +77,8 @@ def grab_seen_devices():
 def grab_json():
     current_directory = os.getcwd()
     return os.path.join( current_directory, "seen_devices.json" )
+
+
 
 if __name__ == "__main__":
     search()

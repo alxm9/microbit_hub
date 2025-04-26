@@ -237,10 +237,16 @@ class MainWin(QMainWindow):
                     "flash": self.flash_button,
                     "delete": self.delete_button
                 }
+
+        # Toggle
         try:
             button[in_button].setEnabled( state )
         except KeyError:
             raise ValueError(f"Unknown button: {in_button}")
+
+        # Color
+        button[in_button].setStyleSheet("background-color: rgb(255,255,0); color: rgb(0,0,0)")
+       
 
 
     def select_path(self):
