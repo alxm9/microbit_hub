@@ -12,28 +12,40 @@ GUI layout:
                (main_layout)
 
   (left_layout)                  (right_layout)
-╔══════════════╗ ╔═════════════════════════════════════════════╗
-║              ║ ║                                             ║
-▼              ▼ ▼                                             ▼
-|
-╔═══════════════╦═══════════════════════════════════════════════╗
-║ left_text1    ║                                               ║
-║---------------║                                               ║
-║ table         ║           (output_layout)                     ║
-║               ║                                               ║
-║               ║               logbox                          ║
-║               ║                                               ║
-║---------------║                                               ║
-║ search_button ║                                               ║
-║ dl_ul_layout  ║-----------------------------------------------║
-║ left_text2    ║           (bottom_layout)      download_button║
-║ device_label  ║                                flash_button   ║
-║               ║            botlist             delete_button  ║
-║               ║                                               ║
-╚═══════════════╩═══════════════════════════════════════════════╝
+╔════════════════╗ ╔══════════════════════════════════════════════╗
+║                ║ ║                                              ║
+▼                ▼ ▼                                              ▼
+╔═════════════════╦═══════════════════════════════════════════════╗
+║ connected_label ║                                               ║
+║-----------------║                                               ║
+║ table           ║           (output_layout)                     ║
+║                 ║                                               ║
+║                 ║               logbox                          ║
+║                 ║                                               ║
+║-----------------║                                               ║
+║ search_button   ║                                               ║
+║ dl_ul_layout    ║-----------------------------------------------║
+║ showing_label   ║           (bottom_layout)      download_button║
+║ device_label    ║                                upload_button  ║
+║                 ║            botlist             delete_button  ║
+║                 ║                                               ║
+╚═════════════════╩═══════════════════════════════════════════════╝
 
 
 """
+
+colors = {
+        "delete": ("background-color: rgb(70,0,0); color: rgb(100,100,100)", #off
+                   "background-color: rgb(150,0,0); color: rgb(0,0,0)"), #on
+
+        "download": ("background-color: rgb(80,80,80); color: rgb(150,150,150)",
+                     "background-color: rgb(190,190,190); color: rgb(0,0,0)"),
+
+        "upload": ("background-color: rgb(80,80,80); color: rgb(150,150,150)",
+                  "background-color: rgb(190,190,190); color: rgb(0,0,0)"),
+
+        }
+
 
 
 
@@ -48,9 +60,9 @@ class MainWin(QMainWindow):
         self.right_layout = QVBoxLayout()
         self.left_layout = QVBoxLayout()
         self.bottom_layout = QHBoxLayout()
-        self.output_layout = QVBoxLayout()
+        self.outupload_layout = QVBoxLayout()
 
-        self.right_layout.addLayout(self.output_layout,4)
+        self.right_layout.addLayout(self.outupload_layout,4)
         self.right_layout.addLayout(self.bottom_layout,2)
 
         self.main_layout.addLayout(self.left_layout,3)
@@ -66,16 +78,16 @@ class MainWin(QMainWindow):
         bg.setLayout(self.main_layout)
         self.setCentralWidget(bg)
         self.toggle_button( "download", False )
-        self.toggle_button( "flash", False )
+        self.toggle_button( "upload", False )
         self.init_pressed_signals()
 
 
     def left_placer(self):
 
-        left_text1 = QLabel("Connected micro:bits")
-        left_text1.setContentsMargins(0,3,0,3)
-        left_text1.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
-        left_text1.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        connected_label = QLabel("Connected micro:bits")
+        connected_label.setContentsMargins(0,3,0,3)
+        connected_label.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
+        connected_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self.table = QTableWidget( 0, 2, self )
         table = self.table
@@ -88,39 +100,34 @@ class MainWin(QMainWindow):
         table.setRowCount(0)
         table.setSelectionBehavior( QTableView.SelectionBehavior.SelectRows )
         table.setSelectionMode( QTableView.SelectionMode.SingleSelection )
-        #table.pressed.connect(self.load_files)
-        #table.cellChanged.connect(self.renamer)
 
         self.search_button = QPushButton("Search for micro:bits")
-        #self.search_button.released.connect(self.search_handler)
 
         self.dl_ul_layout = QHBoxLayout()
         self.dl_ul_layout.setSpacing(0)
         self.dl_all_button = QPushButton("Create workspace\n on local device")
         self.dl_all_button.setDisabled(True)
-        #self.dl_all_button.pressed.connect(self.create_workspace)
-        self.ul_all_button = QPushButton("Flash workspace\nto micro:bits")
+        self.ul_all_button = QPushButton("Upload workspace\non micro:bits")
         self.ul_all_button.setDisabled(True)
-        #self.ul_all_button.pressed.connect(self.flash_workspace)
         self.ul_all_button.setContentsMargins(0,0,0,0)
         self.dl_ul_layout.addWidget(self.dl_all_button)
         self.dl_ul_layout.addWidget(self.ul_all_button)
 
-        left_text2 = QLabel("Showing files on:")
-        left_text2.setContentsMargins(0,10,0,0)
-        left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
-        left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        showing_label = QLabel("Showing files on:")
+        showing_label.setContentsMargins(0,10,0,0)
+        showing_label.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
+        showing_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self.device_label = QLabel("None")
         self.device_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Add everything to layout
         layout = self.left_layout
-        layout.addWidget(left_text1,1)
+        layout.addWidget(connected_label,1)
         layout.addWidget(self.table,20)
         layout.addWidget(self.search_button)
         layout.addLayout(self.dl_ul_layout)
-        layout.addWidget(left_text2,1)
+        layout.addWidget(showing_label,1)
         layout.addWidget(self.device_label,10)
         layout.setSpacing(0) 
 
@@ -132,7 +139,7 @@ class MainWin(QMainWindow):
         self.logbox.setStyleSheet("background-color: rgb(0,0,0); color: rgb(255,255,255)")
         self.logbox.setReadOnly(True)
         self.logbox.setPlaceholderText("Log")
-        self.output_layout.addWidget(self.logbox)
+        self.outupload_layout.addWidget(self.logbox)
 
         self.red = QTextCharFormat()
         self.green = QTextCharFormat()
@@ -145,35 +152,29 @@ class MainWin(QMainWindow):
         self.download_button.setSizePolicy(
                 QSizePolicy.Policy.MinimumExpanding, 
                 QSizePolicy.Policy.MinimumExpanding ) # horizontal, vertical
-        #self.download_button.pressed.connect(self.file_downloader)
 
-        self.flash_button = QPushButton('Flash to\nmicro:bit ...')
-        self.flash_button.setSizePolicy(
+        self.upload_button = QPushButton('Upload to\nmicro:bit ...')
+        self.upload_button.setSizePolicy(
                 QSizePolicy.Policy.MinimumExpanding, 
                 QSizePolicy.Policy.MinimumExpanding )
-        #self.flash_button.pressed.connect(self.file_flasher)
 
         self.delete_button = QPushButton('Delete\nselection')
-        self.delete_button.setStyleSheet("background-color: rgb(50,0,0); color: rgb(100,100,100)")
+        self.delete_button.setStyleSheet( colors["delete"][0] )
         self.delete_button.setSizePolicy(
                 QSizePolicy.Policy.MinimumExpanding, 
                 QSizePolicy.Policy.MinimumExpanding )
-        #self.delete_button.pressed.connect(self.remove_file)
-
-        #self.disable_right_buttons(disable_flash=True)
 
         bottom_buttons = QVBoxLayout() # relative to the right side
         bottom_buttons.setSpacing(0)
         bottom_buttons.addWidget(self.download_button)
-        bottom_buttons.addWidget(self.flash_button)
+        bottom_buttons.addWidget(self.upload_button)
         bottom_buttons.addWidget(self.delete_button)
         bottom_buttons.setContentsMargins(0,0,0,0)
 
         self.botlist = QListWidget()
         self.botlist.setStyleSheet("background-color: rgb(255,255,255); color: rgb(0,0,0)")
-        #elf.botlist.pressed.connect(self.select_file)
         self.botlist.resizeEvent = self.botlb_resize
-        self.right_text1 = QLabel("Download, flash, or delete\nany file after selecting a micro:bit.", self.botlist)
+        self.right_text1 = QLabel("Download, upload, or delete\nany file after selecting a micro:bit.", self.botlist)
         self.right_text1.setStyleSheet('background: rgba(0,0,0,0); font-style: italic; padding:5px')
         self.right_text1.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignBottom)
         self.right_text1.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
@@ -203,7 +204,7 @@ class MainWin(QMainWindow):
 
 
     def default_state(self):
-        for button in ["flash","download","delete"]:
+        for button in ["upload","download","delete"]:
             self.toggle_button(button, False)
         self.change_device_label("None")
 
@@ -215,8 +216,9 @@ class MainWin(QMainWindow):
     def init_pressed_signals(self):
 
         self.table.pressed.connect( lambda: (
-            self.toggle_button("flash", True),
+            self.toggle_button("upload", True),
             self.botlist.clear(),
+            self.toggle_botlist_splash(False)
             ))
 
         self.botlist.pressed.connect( lambda: (
@@ -224,33 +226,37 @@ class MainWin(QMainWindow):
             self.toggle_button("delete", True)
             ))
 
-        self.search_button.pressed.connect( lambda: (
+        self.search_button.released.connect( lambda: (
             self.table_clear(),
             self.default_state(),
-            self.botlist.clear()
+            self.botlist.clear(),
+            self.toggle_botlist_splash(True)
             )) 
 
 
     def toggle_button(self, in_button, state):
         button = {
                     "download": self.download_button,
-                    "flash": self.flash_button,
+                    "upload": self.upload_button,
                     "delete": self.delete_button
-                }
+                }[in_button]
 
         # Toggle
         try:
-            button[in_button].setEnabled( state )
+            button.setEnabled( state )
         except KeyError:
             raise ValueError(f"Unknown button: {in_button}")
 
         # Color
-        button[in_button].setStyleSheet("background-color: rgb(255,255,0); color: rgb(0,0,0)")
-       
-
+        button.setStyleSheet( colors[in_button][state] )
+        
 
     def select_path(self):
         return QFileDialog.getOpenFileName()
+
+
+    def toggle_botlist_splash(self, state):
+        self.right_text1.setVisible(state)
 
 
     def write_log(self, to_write):

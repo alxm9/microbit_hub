@@ -50,8 +50,6 @@ def search():
                 microbit_id = seen_devices[sn]
 
             connected[microbit_id] = Microbit(device, sn, microbit_id)
-    
-    print(connected)
 
 
 

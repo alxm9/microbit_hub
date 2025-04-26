@@ -6,12 +6,15 @@ import platform
 
 Qt_app = gui.QApplication(sys.argv)
 window = gui.MainWin()
+write = window.write_log
 
 
 def os_checker():
+    window.write_log("Press search for micro:bits to begin.")
+    window.write_log("Click on table entry to change id.\n")
     msg = {
             "Windows": "Windows detected.", # wip
-            "Linux": "Linux detected. Please ensure current user is added to the 'dialout' group (sudo usermod -a -G dialout <username>), otherwise ports will frequently need to be opened manually. (e.g. sudo chmod 666 /dev/ttyACM0)",
+            "Linux": "Linux detected. Please ensure current user is added to the 'dialout' group (sudo usermod -a -G dialout <username>), otherwise ports will frequently need to be opened manually. (e.g. sudo chmod 666 /dev/ttyACM0)\n",
             "Darwin": "MacOS detected." # wip
             }[platform.system()]
     window.write_log(msg)
@@ -19,7 +22,15 @@ def os_checker():
 
 
 def search_handler():
-    devices.search()
+
+    try:
+        devices.search()
+    except Exception as e:
+        msg = e.strerror 
+        if e.errno == 13:
+            msg += f". Enter 'sudo chmod 666 {msg.split()[-1]}' in terminal to open the port."
+        window.write_log(f"{msg}")
+
     if devices.connected:
         for device_id in devices.connected:
             device = devices.connected[device_id]
@@ -66,10 +77,13 @@ def delete_file():
 
 
 
-# Flash a file to current device
-def flash_file():
+# Upload file to current device
+def upload_file():
     path = window.select_path()[0]
     file = path.split("/")[-1] # Used for logging
+
+    if path == "":
+        return
 
     try:
         microfs.put( path, serial = devices.current_device.serial )
@@ -77,13 +91,15 @@ def flash_file():
         window.write_log(f"{e}") #wip
 
     show_files(log = False)
-    window.write_log(f"Flashed '{file}' to '{devices.current_device.id}'.")
+    window.write_log(f"Uploaded '{file}' to '{devices.current_device.id}'.")
 
 
 
 def change_id(): 
-    new_name = window.table.currentIndex().data()
-    devices.current_device.rename(new_name)
+    device = devices.current_device
+    new_id, old_id = window.table.currentIndex().data(), device.id
+    device.rename(new_id)
+    window.write_log(f"Renamed '{old_id}' to '{new_id}'.")
     select_device()
 
 
@@ -91,17 +107,17 @@ def change_id():
 # Establish connections between functionalities and gui
 connections = [
         ( window.search_button, search_handler ),
-        ( window.table, select_device ),
-        ( window.botlist, select_file ),
-        ( window.flash_button , flash_file ),
+        ( window.upload_button , upload_file ),
         ( window.delete_button , delete_file )
         ]
 
 for gui_element, function in connections:
-    gui_element.pressed.connect( function )
+    gui_element.released.connect( function )
 
 # More connections
 window.table.cellChanged.connect( change_id )
+window.table.pressed.connect( select_device )
+window.botlist.pressed.connect( select_file )
 
 
 window.show()
