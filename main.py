@@ -14,7 +14,7 @@ def os_checker():
     window.write_log("Click on table entry to change id.\n")
     msg = {
             "Windows": "Windows detected.", # wip
-            "Linux": "Linux detected. Please ensure current user is added to the 'dialout' group (sudo usermod -a -G dialout <username>), otherwise ports will frequently need to be opened manually. (e.g. sudo chmod 666 /dev/ttyACM0)\n",
+            "Linux": "Linux detected. Please ensure current user is added to the 'dialout' group (sudo usermod -a -G dialout <username>), otherwise ports will frequently need to be opened manually to establish a connection. (e.g. sudo chmod 666 /dev/ttyACM0)\n",
             "Darwin": "MacOS detected." # wip
             }[platform.system()]
     window.write_log(msg)

@@ -25,7 +25,7 @@ GUI layout:
 ║-----------------║                                               ║
 ║ search_button   ║                                               ║
 ║ dl_ul_layout    ║-----------------------------------------------║
-║ showing_label   ║           (bottom_layout)      download_button║
+║ left_text2      ║           (bottom_layout)      download_button║
 ║ device_label    ║                                upload_button  ║
 ║                 ║            botlist             delete_button  ║
 ║                 ║                                               ║
@@ -113,10 +113,10 @@ class MainWin(QMainWindow):
         self.dl_ul_layout.addWidget(self.dl_all_button)
         self.dl_ul_layout.addWidget(self.ul_all_button)
 
-        showing_label = QLabel("Showing files on:")
-        showing_label.setContentsMargins(0,10,0,0)
-        showing_label.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
-        showing_label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        left_text2 = QLabel("Showing files on:")
+        left_text2.setContentsMargins(0,10,0,0)
+        left_text2.setStyleSheet("color: rgb(172,172,172); font-size: 12px;")
+        left_text2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         self.device_label = QLabel("None")
         self.device_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -127,7 +127,7 @@ class MainWin(QMainWindow):
         layout.addWidget(self.table,20)
         layout.addWidget(self.search_button)
         layout.addLayout(self.dl_ul_layout)
-        layout.addWidget(showing_label,1)
+        layout.addWidget(left_text2,1)
         layout.addWidget(self.device_label,10)
         layout.setSpacing(0) 
 

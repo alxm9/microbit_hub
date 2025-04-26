@@ -5,3 +5,4 @@ devices.csv
 *.swp
 *.swo
 session
+old.py
